@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FWorkout+</title>
+    <!-- REVISI: Menambahkan Favicon Kustom -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='black'/%3E%3Cpath d='M25,20 H65 C75,20 75,30 65,30 H45 V45 H60 C70,45 70,55 60,55 H45 V85 H35 V20 Z' fill='%23FF3B80'/%3E%3Cpath d='M25,40 H55 C65,40 65,50 55,50 H45 V85 H35 V40 Z' fill='%23A2E500' transform='translate(0, -2)'/%3E%3Cpath d='M25,60 H45 C55,60 55,70 45,70 H35 V85 H25 Z' fill='%2300BFFF' transform='translate(0, -4)'/%3E%3Cpath d='M70 42 H86 M78 34 V50' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,7 +21,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Animasi untuk modal dan halaman */
         .view-enter { opacity: 0; transform: translateY(20px); }
         .view-enter-active { opacity: 1; transform: translateY(0); transition: all 300ms ease-out; }
         .view-leave-active { opacity: 0; transform: translateY(-20px); transition: all 300ms ease-in; }
@@ -34,16 +35,43 @@
         .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 0.5s cubic-bezier(0.21, 1.02, 0.73, 1); }
         .toast-leave-active { transform: translateY(100%); opacity: 0; transition: all 0.5s cubic-bezier(0.25, 0, 0.5, 1); }
 
-        .bottom-nav {
-            padding-bottom: var(--safe-area-inset-bottom);
-            transform: translateX(-50%);
-            transition: transform 0.3s ease-in-out;
-        }
-        .bottom-nav.nav-hidden {
-            transform: translateX(-50%) translateY(100%);
-        }
         .main-content-padding {
-             padding-bottom: calc(80px + var(--safe-area-inset-bottom));
+             padding-bottom: 2rem;
+        }
+
+        .tab-container {
+            display: flex;
+            position: relative;
+            background-color: #1c1c1e;
+            border-radius: 999px;
+            padding: 4px;
+            width: fit-content;
+            margin: 16px auto 0 auto;
+        }
+        .tab {
+            color: #8e8e93;
+            font-weight: 500; 
+            padding: 8px 20px;
+            border-radius: 999px;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .tab.active {
+            color: white;
+        }
+        .tab-indicator {
+            position: absolute;
+            top: 4px;
+            height: 36px;
+            background: rgba(120, 120, 128, 0.36); 
+            border-radius: 999px;
+            z-index: 1;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
@@ -52,170 +80,247 @@
     <!-- Kontainer Utama Aplikasi -->
     <div id="app-container" class="max-w-lg mx-auto h-screen bg-black flex flex-col">
 
-        <!-- Halaman Utama (For You) -->
+        <!-- Halaman Utama -->
         <div id="main-view" class="flex flex-col flex-grow overflow-hidden">
             <header class="p-4 pt-6 flex-shrink-0">
                 <div class="flex items-center gap-2">
                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
                     <h1 class="text-3xl font-bold tracking-tight">FWorkout+</h1>
                 </div>
-                <div class="relative mt-4">
-                    <input type="text" placeholder="Workouts, Trainers, Music, and More" class="w-full bg-[#1c1c1e] text-white placeholder-gray-400 rounded-lg py-2 pl-10 pr-4 border-none focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <!-- Navigasi Tab Geser dengan tambahan "Summary" -->
+                <div id="tab-navigation" class="tab-container">
+                    <div class="tab" data-target="summary-content">Summary</div>
+                    <div class="tab" data-target="music-content">Music</div>
+                    <div class="tab active" data-target="fworkout-plus-content">FWorkout+</div>
+                    <div class="tab" data-target="library-content">Library</div>
+                    <div class="tab-indicator"></div>
                 </div>
             </header>
 
-            <main class="flex-grow p-4 overflow-y-auto no-scrollbar main-content-padding">
-                <div id="week-navigation" class="flex items-center justify-between mb-4">
-                     <button id="prev-week-btn" class="p-2 rounded-full hover:bg-gray-800 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                     <h2 id="week-title" class="text-xl font-bold"></h2>
-                     <button id="next-week-btn" class="p-2 rounded-full hover:bg-gray-800 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
-                </div>
-                <h3 class="text-2xl font-bold mb-3">Activity Types</h3>
-                <div id="activity-cards" class="grid grid-cols-2 gap-4">
-                    <!-- Kartu aktivitas akan di-generate oleh JS -->
-                </div>
-                 <div class="mt-8">
-                    <h3 class="text-2xl font-bold mb-3">Settings</h3>
-                    <div class="space-y-3">
-                        <button id="add-week-btn" class="w-full text-left flex items-center gap-4 bg-[#1c1c1e] p-4 rounded-xl hover:bg-gray-800 transition-colors">
-                            <div class="bg-green-500 p-2 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg></div>
-                            <span class="font-semibold">Add New Week</span>
-                        </button>
-                         <button id="manage-templates-btn" class="w-full text-left flex items-center gap-4 bg-[#1c1c1e] p-4 rounded-xl hover:bg-gray-800 transition-colors">
-                            <div class="bg-blue-500 p-2 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/><path d="M4 5.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5z"/></svg></div>
-                            <span class="font-semibold">Manage Templates</span>
-                        </button>
+            <!-- Wrapper konten utama yang bisa di-scroll -->
+            <div class="flex-grow overflow-y-auto no-scrollbar main-content-padding">
+                <div id="tab-content-wrapper" class="p-4">
+                    <!-- Konten Summary dipindahkan ke sini -->
+                    <div id="summary-content" class="hidden">
+                         <h2 class="text-2xl font-bold mb-4">Weekly Summary</h2>
+                         <div class="bg-[#1c1c1e] p-4 rounded-2xl">
+                             <canvas id="weekly-chart"></canvas>
+                         </div>
+                         <div id="summary-stats" class="text-left mt-4 space-y-2 text-base p-2"></div>
+                    </div>
+
+                    <!-- Konten Music Fungsional -->
+                    <div id="music-content" class="hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Music</h2>
+                            <label for="add-song-input" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-full flex items-center gap-2 cursor-pointer transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+                                <span>Tambah Lagu</span>
+                            </label>
+                            <input type="file" id="add-song-input" class="hidden" accept=".mp3,audio/*" onchange="app.handleSongUpload(event)">
+                        </div>
+                        <div id="song-list" class="space-y-3"></div>
+                    </div>
+
+                    <!-- Konten FWorkout+ (Halaman Utama) -->
+                    <div id="fworkout-plus-content">
+                        <div id="week-navigation" class="flex items-center justify-between mb-4">
+                            <button id="prev-week-btn" class="p-2 rounded-full hover:bg-gray-800 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                            <h2 id="week-title" class="text-xl font-bold"></h2>
+                            <button id="next-week-btn" class="p-2 rounded-full hover:bg-gray-800 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Activity Types</h3>
+                        <div id="activity-cards" class="grid grid-cols-2 gap-4"></div>
+                         <div class="mt-8">
+                            <h3 class="text-2xl font-bold mb-3">Settings</h3>
+                            <div class="space-y-3">
+                                <button id="add-week-btn" class="w-full text-left flex items-center gap-4 bg-[#1c1c1e] p-4 rounded-xl hover:bg-gray-800 transition-colors">
+                                    <div class="bg-green-500 p-2 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg></div>
+                                    <span class="font-semibold">Add New Week</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Konten Library Fungsional -->
+                    <div id="library-content" class="hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Library</h2>
+                            <label for="add-photo-input" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-full flex items-center gap-2 cursor-pointer transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/></svg>
+                                <span>Upload Foto</span>
+                            </label>
+                            <input type="file" id="add-photo-input" class="hidden" accept="image/*" onchange="app.handlePhotoUpload(event)">
+                        </div>
+                        <div id="photo-gallery" class="grid grid-cols-2 gap-3"></div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
 
         <!-- Halaman Detail Latihan -->
-        <!-- FIXED: Menambahkan `min-h-0` yang penting untuk flexbox scrolling -->
-        <div id="workout-detail-view" class="hidden flex flex-col flex-grow min-h-0">
-            <!-- Konten akan digenerate oleh JS -->
-        </div>
-
-        <!-- Navigasi Bawah -->
-        <nav id="bottom-nav" class="fixed bottom-0 left-1/2 w-full max-w-lg bg-black/70 backdrop-blur-lg border-t border-gray-700 z-20 bottom-nav">
-            <div class="flex justify-around items-center h-[70px]">
-                <button data-target="summary-modal" class="bottom-nav-btn flex flex-col items-center gap-1 text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m18.7 8-5.1 5.2-2.8-2.7L7 15.2"/></svg>
-                    <span class="text-xs font-medium">Summary</span>
-                </button>
-                <button data-target="main-view" class="bottom-nav-btn flex flex-col items-center gap-1 text-purple-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4" fill="none" stroke="black" stroke-width="2"></path></svg>
-                    <span class="text-xs font-bold">Fitness+</span>
-                </button>
-                <button data-target="gallery-modal" class="bottom-nav-btn flex flex-col items-center gap-1 text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                    <span class="text-xs font-medium">Gallery</span>
-                </button>
-            </div>
-        </nav>
+        <div id="workout-detail-view" class="hidden flex flex-col flex-grow min-h-0"></div>
     </div>
 
-    <!-- Berbagai Modal -->
+    <!-- Modal -->
     <div id="modals">
-        <!-- Modal Timer -->
         <div id="timer-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
-            <div id="timer-modal-content" class="bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-sm text-center shadow-lg modal-enter">
-                <h2 class="text-xl font-bold mb-2 text-purple-400">Start Timer</h2>
-                <p id="timer-exercise-name" class="text-gray-300 mb-6">Select rest duration.</p>
-                <div id="duration-selection">
-                    <div class="grid grid-cols-3 gap-3 mb-4">
-                        <button onclick="app.startCountdown(30)" class="bg-gray-700 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-3 font-semibold">30s</button>
-                        <button onclick="app.startCountdown(60)" class="bg-gray-700 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-3 font-semibold">60s</button>
-                        <button onclick="app.startCountdown(90)" class="bg-gray-700 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-3 font-semibold">90s</button>
-                    </div>
-                    <button onclick="app.closeModal('timer-modal')" class="w-full bg-gray-600 hover:bg-gray-500 transition-colors duration-200 rounded-lg py-2 font-medium">Cancel</button>
-                </div>
-                <div id="countdown-display" class="hidden">
-                    <div id="countdown-timer" class="text-7xl font-bold text-purple-400 my-6">00:00</div>
-                    <button id="finish-button" onclick="app.finishTimer()" class="w-full bg-purple-600 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-3 font-bold text-lg hidden">FINISH</button>
-                    <p id="countdown-message" class="text-gray-400 mt-2">Rest time...</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal Summary Mingguan -->
-        <div id="summary-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
-            <div class="bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-md text-center shadow-lg modal-enter">
-                <h2 class="text-xl font-bold mb-4 text-purple-400">Weekly Summary</h2>
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <canvas id="weekly-chart"></canvas>
-                </div>
-                <div id="summary-stats" class="text-left mt-4 space-y-1 text-sm"></div>
-                <button onclick="app.closeModal('summary-modal')" class="mt-6 w-full bg-gray-600 hover:bg-gray-500 transition-colors duration-200 rounded-lg py-2 font-medium">Close</button>
-            </div>
-        </div>
-
-        <!-- Modal Galeri Selfie -->
-        <div id="gallery-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
-            <div class="bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-sm text-center shadow-lg modal-enter">
-                <h2 class="text-xl font-bold mb-4 text-purple-400">Transformation Gallery</h2>
-                <div id="gallery-content" class="max-h-96 overflow-y-auto space-y-4 no-scrollbar"></div>
-                <button onclick="app.closeModal('gallery-modal')" class="mt-6 w-full bg-gray-600 hover:bg-gray-500 transition-colors duration-200 rounded-lg py-2 font-medium">Close</button>
-            </div>
-        </div>
-
-        <!-- Modal Pilih Template -->
+             <div id="timer-modal-content" class="bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-sm text-center shadow-lg modal-enter">
+                 <h2 class="text-xl font-bold mb-2 text-purple-400">Start Timer</h2>
+                 <p id="timer-exercise-name" class="text-gray-300 mb-6">Select rest duration.</p>
+                 <div id="duration-selection">
+                     <div class="grid grid-cols-3 gap-3 mb-4">
+                         <button onclick="app.startCountdown(30)" class="bg-gray-700 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-3 font-semibold">30s</button>
+                         <button onclick="app.startCountdown(60)" class="bg-gray-700 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-3 font-semibold">60s</button>
+                         <button onclick="app.startCountdown(90)" class="bg-gray-700 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-3 font-semibold">90s</button>
+                     </div>
+                     <button onclick="app.closeModal('timer-modal')" class="w-full bg-gray-600 hover:bg-gray-500 transition-colors duration-200 rounded-lg py-2 font-medium">Cancel</button>
+                 </div>
+                 <div id="countdown-display" class="hidden">
+                     <div id="countdown-timer" class="text-7xl font-bold text-purple-400 my-6">00:00</div>
+                     <button id="finish-button" onclick="app.finishTimer()" class="w-full bg-purple-600 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-3 font-bold text-lg hidden">FINISH</button>
+                     <p id="countdown-message" class="text-gray-400 mt-2">Rest time...</p>
+                 </div>
+             </div>
+         </div>
         <div id="template-select-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
-            <div class="bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-sm text-center shadow-lg modal-enter">
-                <h2 class="text-xl font-bold mb-4 text-purple-400">Start New Week</h2>
-                <p class="text-gray-400 mb-4">Choose a program for this week.</p>
-                <div id="template-options" class="space-y-2"></div>
-                <button onclick="app.closeModal('template-select-modal')" class="mt-4 w-full bg-gray-600 hover:bg-gray-500 transition-colors duration-200 rounded-lg py-2 font-medium">Cancel</button>
+             <div class="bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-sm text-center shadow-lg modal-enter">
+                 <h2 class="text-xl font-bold mb-4 text-purple-400">Start New Week</h2>
+                 <p class="text-gray-400 mb-4">Choose a program for this week.</p>
+                 <div id="template-options" class="space-y-2"></div>
+                 <button onclick="app.closeModal('template-select-modal')" class="mt-4 w-full bg-gray-600 hover:bg-gray-500 transition-colors duration-200 rounded-lg py-2 font-medium">Cancel</button>
+             </div>
+         </div>
+        <div id="photo-preview-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50 hidden" onclick="app.closeModal('photo-preview-modal')">
+            <div class="bg-transparent w-full max-w-lg text-center shadow-lg modal-enter" onclick="event.stopPropagation()">
+                <img id="photo-preview-img" src="" class="max-w-full max-h-[80vh] mx-auto rounded-lg">
+                <button onclick="app.closeModal('photo-preview-modal')" class="mt-4 bg-gray-800 text-white px-4 py-2 rounded-full">Close</button>
+            </div>
+        </div>
+        <div id="add-song-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-[#1c1c1e] rounded-2xl p-6 w-full max-w-sm text-left shadow-lg modal-enter">
+                <h2 class="text-xl font-bold mb-4 text-purple-400">Detail Lagu</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="song-title-input" class="text-sm font-medium text-gray-400">Judul Lagu</label>
+                        <input type="text" id="song-title-input" class="w-full mt-1 bg-gray-700 text-white rounded-lg p-2 border-none focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label for="song-artist-input" class="text-sm font-medium text-gray-400">Nama Artis</label>
+                        <input type="text" id="song-artist-input" class="w-full mt-1 bg-gray-700 text-white rounded-lg p-2 border-none focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+                <div class="mt-6 flex gap-3">
+                    <button onclick="app.closeModal('add-song-modal')" class="w-full bg-gray-600 hover:bg-gray-500 transition-colors duration-200 rounded-lg py-2 font-medium">Batal</button>
+                    <button onclick="app.commitAddSong()" class="w-full bg-purple-600 hover:bg-purple-500 transition-colors duration-200 rounded-lg py-2 font-bold">Simpan</button>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- Toast Motivasi -->
     <div id="motivational-toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 w-11/12 max-w-sm bg-purple-500 text-white p-4 rounded-xl shadow-2xl z-50 pointer-events-none hidden">
         <p class="text-center font-bold"></p>
     </div>
 
-    <!-- Area Rendering & Editor (di luar layar) -->
     <div id="offscreen-elements" class="fixed -left-[9999px] top-0">
+        <!-- REVISI: Desain Snapshot Progress Diperbarui -->
         <div id="snapshot-wrapper" class="p-8 bg-black">
-            <div id="snapshot-content" class="snapshot-container bg-[#1c1c1e] text-white p-8 flex flex-col rounded-3xl border-4 border-purple-500 shadow-2xl">
-                <header class="text-center mb-6"><h2 id="snapshot-title" class="text-3xl font-bold"></h2><p id="snapshot-date" class="text-gray-400"></p></header>
-                <main id="snapshot-list" class="flex-grow space-y-3 overflow-y-auto no-scrollbar"></main>
-                <footer class="text-center mt-6 pt-4 border-t border-gray-600"><p class="font-bold text-xl text-purple-400">FWorkout+</p></footer>
+            <div id="snapshot-content" class="snapshot-container text-white p-6 flex flex-col rounded-3xl shadow-2xl">
+                <header class="flex items-start justify-between mb-4">
+                    <div>
+                        <h2 id="snapshot-title" class="text-3xl font-bold"></h2>
+                        <p id="snapshot-date" class="text-white/70"></p>
+                    </div>
+                    <div id="snapshot-icon" class="opacity-50">
+                        <!-- Ikon akan dimasukkan oleh JS -->
+                    </div>
+                </header>
+                <main id="snapshot-list" class="flex-grow space-y-2 overflow-y-auto no-scrollbar"></main>
+                <footer class="text-center mt-6 pt-4 border-t border-white/20">
+                    <p class="font-bold text-xl text-white/90">FWorkout+</p>
+                </footer>
             </div>
         </div>
         <canvas id="image-resizer-canvas"></canvas>
     </div>
     
-    <!-- Editor Template (halaman terpisah) -->
-    <div id="template-editor-page" class="hidden fixed inset-0 bg-black z-[100] p-4 flex-col">
-        <!-- Konten editor akan di-generate oleh JS -->
-    </div>
+    <audio id="audio-player"></audio>
 
     <script>
     const App = function() {
+        // --- DATABASE HELPER (IndexedDB) ---
+        this.db = null;
+        this.initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open("FWorkoutDB", 1);
+                request.onerror = (event) => {
+                    console.error("Database error:", event.target.errorCode);
+                    reject("Database error");
+                };
+                request.onsuccess = (event) => {
+                    this.db = event.target.result;
+                    console.log("Database initialized");
+                    resolve();
+                };
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    db.createObjectStore("songs", { keyPath: "id", autoIncrement: true });
+                    db.createObjectStore("photos", { keyPath: "id", autoIncrement: true });
+                };
+            });
+        };
+
         // --- DATA LATIHAN DEFAULT, QUOTES & STYLING ---
         this.initialWeekSchedule = {
-            1: { name: "Push — Chest, Shoulders, Triceps", exercises: [ { name: "Dumbbell Chest Press", sets: "4x12" }, { name: "Push-Up", sets: "3xMax" }, { name: "Overhead Dumbbell Press", sets: "4x10" }, { name: "Dumbbell Front Raise", sets: "3x12" }, { name: "Dumbbell Triceps Kickback", sets: "3x12" }, { name: "Triceps Dips", sets: "3x15" } ] },
-            2: { name: "Pull — Back, Biceps", exercises: [ { name: "Pull-Up (Wide)", sets: "4xMax" }, { name: "Dumbbell Row", sets: "4x10" }, { name: "Bicep Curl", sets: "4x12" }, { name: "Concentration Curl", sets: "3x10 each" }, { name: "Shrug", sets: "3x15" }, { name: "Face Pull", sets: "3x12" } ] },
-            3: { name: "Full Body Dumbbell", exercises: [ { name: "Goblet Squat", sets: "4x15" }, { name: "Dumbbell Clean & Press", sets: "3x10" }, { name: "Dumbbell Deadlift", sets: "4x8" }, { name: "Lateral Raise", sets: "3x15" }, { name: "Russian Twist", sets: "3x20" } ] },
-            4: { name: "Legs & Core", exercises: [ { name: "Squats", sets: "4x12" }, { name: "Lunges", sets: "3x10 each" }, { name: "Hanging Leg Raise", sets: "4x15" }, { name: "Plank", sets: "3x45s" }, { name: "Side Plank", sets: "2x30s each" }, { name: "Supermans", sets: "3x20" } ] },
-            5: { name: "HIIT", exercises: [ { name: "Burpees", sets: "4x10" }, { name: "High Knees", sets: "3x30s" }, { name: "Jumping Jacks", sets: "3x45s" }, { name: "Mountain Climbers", sets: "3x30s" }, { name: "Incline Push-Up", sets: "3x15" }, { name: "Jump Squats", sets: "3x12" } ] },
-            6: { name: "Mobility & Light Core", exercises: [ { name: "Shoulder Mobility", sets: "5 min" }, { name: "Hip Opener", sets: "5 min" }, { name: "Bird Dog", sets: "3x15/side" }, { name: "Leg Raises", sets: "3x15" }, { name: "Crunches", sets: "3x20" } ] },
-            0: { name: "Rest Day & Progress Photo", exercises: [ { name: "Rest, hydrate, and fuel your body for the week ahead.", sets: "✅" } ] }
+             1: { name: "Push — Chest, Shoulders, Triceps", exercises: [ { name: "Dumbbell Chest Press", sets: "4x12" }, { name: "Push-Up", sets: "3xMax" }, { name: "Overhead Dumbbell Press", sets: "4x10" }, { name: "Dumbbell Front Raise", sets: "3x12" }, { name: "Dumbbell Triceps Kickback", sets: "3x12" }, { name: "Triceps Dips", sets: "3x15" } ] },
+             2: { name: "Pull — Back, Biceps", exercises: [ { name: "Pull-Up (Wide)", sets: "4xMax" }, { name: "Dumbbell Row", sets: "4x10" }, { name: "Bicep Curl", sets: "4x12" }, { name: "Concentration Curl", sets: "3x10 each" }, { name: "Shrug", sets: "3x15" }, { name: "Face Pull", sets: "3x12" } ] },
+             3: { name: "Full Body Dumbbell", exercises: [ { name: "Goblet Squat", sets: "4x15" }, { name: "Dumbbell Clean & Press", sets: "3x10" }, { name: "Dumbbell Deadlift", sets: "4x8" }, { name: "Lateral Raise", sets: "3x15" }, { name: "Russian Twist", sets: "3x20" } ] },
+             4: { name: "Legs & Core", exercises: [ { name: "Squats", sets: "4x12" }, { name: "Lunges", sets: "3x10 each" }, { name: "Hanging Leg Raise", sets: "4x15" }, { name: "Plank", sets: "3x45s" }, { name: "Side Plank", sets: "2x30s each" }, { name: "Supermans", sets: "3x20" } ] },
+             5: { name: "HIIT", exercises: [ { name: "Burpees", sets: "4x10" }, { name: "High Knees", sets: "3x30s" }, { name: "Jumping Jacks", sets: "3x45s" }, { name: "Mountain Climbers", sets: "3x30s" }, { name: "Incline Push-Up", sets: "3x15" }, { name: "Jump Squats", sets: "3x12" } ] },
+             6: { name: "Mobility & Light Core", exercises: [ { name: "Shoulder Mobility", sets: "5 min" }, { name: "Hip Opener", sets: "5 min" }, { name: "Bird Dog", sets: "3x15/side" }, { name: "Leg Raises", sets: "3x15" }, { name: "Crunches", sets: "3x20" } ] },
+             0: { name: "Rest Day & Progress Photo", exercises: [ { name: "Rest, hydrate, and fuel your body for the week ahead.", sets: "✅" } ] }
         };
         this.motivationalQuotes = [ "Progress, not perfection 💪", "Consistency beats motivation 🚀", "One set today is better than zero sets yesterday.", "Today's sweat = tomorrow's strength 🔥", "You’re stronger than you think.", "Don't stop when you're tired. Stop when you're done.", "The only bad workout is the one that didn't happen." ];
         this.dayStyles = {
-            "Push": { color: "from-red-500 to-orange-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>` },
-            "Pull": { color: "from-purple-500 to-indigo-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>` },
-            "Full Body": { color: "from-green-400 to-cyan-400", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0L12 2.69z"></path></svg>` },
-            "Legs": { color: "from-blue-500 to-sky-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22l-4-4 1.5-1.5M18 22l4-4-1.5-1.5M12 17V3M3 3h18"/></svg>` },
-            "HIIT": { color: "from-yellow-400 to-amber-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>` },
-            "Mobility": { color: "from-teal-400 to-emerald-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>` },
-            "Rest": { color: "from-gray-600 to-gray-700", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>` },
+            "Push": { color: "from-red-500 to-orange-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 8.5L12 12l6.5-3.5L12 5l-6.5 3.5z"/><path d="M12 12v6.5"/><path d="M18.5 8.5v6.5L12 18.5l-6.5-3.5V8.5"/><path d="M5.5 15L12 18.5l6.5-3.5"/><path d="M12 5V2"/></svg>` },
+            "Pull": { color: "from-purple-500 to-indigo-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14"/><path d="M18 11l-6-6-6 6"/></svg>` },
+            "Full Body": { color: "from-green-400 to-cyan-400", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0L12 2.69z"></path></svg>` },
+            "Legs": { color: "from-blue-500 to-sky-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 22l-4-4 1.5-1.5M18 22l4-4-1.5-1.5M12 17V3M3 3h18"/></svg>` },
+            "HIIT": { color: "from-yellow-400 to-amber-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>` },
+            "Mobility": { color: "from-teal-400 to-emerald-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>` },
+            "Rest": { color: "from-gray-600 to-gray-700", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>` },
         };
-        this.tingSound = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC-');
+        this.songCardStyles = [
+            "from-pink-500 to-rose-500",
+            "from-fuchsia-500 to-purple-600",
+            "from-violet-500 to-indigo-500",
+            "from-sky-500 to-cyan-500",
+            "from-emerald-500 to-lime-600",
+            "from-amber-500 to-yellow-500",
+            "from-orange-500 to-red-500"
+        ];
+        this.calorieMap = {
+            'dumbbell': { calories: 9, duration: 1.5, muscles: ['Strength'] },
+            'press': { calories: 9, duration: 1.5, muscles: ['Chest', 'Shoulders', 'Triceps'] },
+            'row': { calories: 9, duration: 1.5, muscles: ['Back', 'Biceps'] },
+            'curl': { calories: 8, duration: 1.5, muscles: ['Biceps'] },
+            'raise': { calories: 8, duration: 1.5, muscles: ['Shoulders'] },
+            'squat': { calories: 10, duration: 1, muscles: ['Legs', 'Core'] },
+            'lunge': { calories: 8, duration: 1, muscles: ['Legs'] },
+            'deadlift': { calories: 10, duration: 1.5, muscles: ['Back', 'Legs'] },
+            'push-up': { calories: 7, duration: 1, muscles: ['Chest', 'Shoulders', 'Triceps'] },
+            'pull-up': { calories: 8, duration: 1, muscles: ['Back', 'Biceps'] },
+            'dips': { calories: 7, duration: 1, muscles: ['Triceps', 'Chest'] },
+            'plank': { calories: 5, duration: 1, muscles: ['Core'] },
+            'twist': { calories: 5, duration: 1, muscles: ['Core'] },
+            'crunch': { calories: 5, duration: 1, muscles: ['Core'] },
+            'hiit': { calories: 12, duration: 1, muscles: ['Full Body', 'Cardio'] },
+            'burpees': { calories: 15, duration: 1, muscles: ['Full Body', 'Cardio'] },
+            'cardio': { calories: 12, duration: 1, muscles: ['Cardio'] },
+            'mobility': { calories: 3, duration: 2, muscles: ['Flexibility'] },
+            'default': { calories: 8, duration: 1.5, muscles: ['General'] } // Fallback
+        };
+        this.tingSound = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC-');
 
         // --- STATE APLIKASI ---
         this.appData = { weeks: [], templates: [], settings: {} };
@@ -226,6 +331,13 @@
         this.weeklyChartInstance = null;
         this.dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         this.lastScrollY = 0;
+        // FITUR BARU: State untuk audio player
+        this.currentlyPlaying = {
+            songId: null,
+            audio: null
+        };
+        // FITUR BARU: State untuk file sementara
+        this.tempSongFile = null;
 
         // --- ELEMEN DOM ---
         this.dom = {
@@ -236,9 +348,9 @@
             prevWeekBtn: document.getElementById('prev-week-btn'),
             nextWeekBtn: document.getElementById('next-week-btn'),
             addWeekBtn: document.getElementById('add-week-btn'),
-            manageTemplatesBtn: document.getElementById('manage-templates-btn'),
-            bottomNav: document.getElementById('bottom-nav'),
-            bottomNavBtns: document.querySelectorAll('.bottom-nav-btn'),
+            tabs: document.querySelectorAll('#tab-navigation .tab'),
+            tabIndicator: document.querySelector('.tab-indicator'),
+            tabContentWrapper: document.getElementById('tab-content-wrapper'),
             timerModalEl: document.getElementById('timer-modal'),
             timerExerciseNameEl: document.getElementById('timer-exercise-name'),
             durationSelectionEl: document.getElementById('duration-selection'),
@@ -247,57 +359,91 @@
             finishButtonEl: document.getElementById('finish-button'),
             countdownMessageEl: document.getElementById('countdown-message'),
             motivationalToastEl: document.getElementById('motivational-toast'),
-            summaryModalEl: document.getElementById('summary-modal'),
             weeklyChartCanvas: document.getElementById('weekly-chart').getContext('2d'),
             summaryStatsEl: document.getElementById('summary-stats'),
-            galleryModalEl: document.getElementById('gallery-modal'),
-            galleryContentEl: document.getElementById('gallery-content'),
             templateSelectModalEl: document.getElementById('template-select-modal'),
             templateOptionsEl: document.getElementById('template-options'),
-            snapshot: { content: document.getElementById('snapshot-content'), title: document.getElementById('snapshot-title'), date: document.getElementById('snapshot-date'), list: document.getElementById('snapshot-list') },
+            snapshot: { content: document.getElementById('snapshot-content'), title: document.getElementById('snapshot-title'), date: document.getElementById('snapshot-date'), list: document.getElementById('snapshot-list'), icon: document.getElementById('snapshot-icon') },
             imageResizerCanvas: document.getElementById('image-resizer-canvas'),
-            templateEditorPageEl: document.getElementById('template-editor-page'),
+            songList: document.getElementById('song-list'),
+            photoGallery: document.getElementById('photo-gallery'),
+            photoPreviewModal: document.getElementById('photo-preview-modal'),
+            photoPreviewImg: document.getElementById('photo-preview-img'),
+            audioPlayer: document.getElementById('audio-player'),
+            addSongModal: document.getElementById('add-song-modal'),
+            songTitleInput: document.getElementById('song-title-input'),
+            songArtistInput: document.getElementById('song-artist-input'),
         };
 
         // --- INIT & EVENT LISTENERS ---
-        this.init = () => {
+        this.init = async () => {
+            await this.initDB();
             this.loadData();
             this.renderMainView();
             this.addEventListeners();
             this.showMotivationalQuote();
             this.requestNotificationPermission();
+            const activeTab = this.dom.tabs[2]; 
+            if(activeTab) this.updateTabIndicator(activeTab, false);
         };
         
         this.addEventListeners = () => {
-            this.dom.mainView.querySelector('main').addEventListener('scroll', this.handleScroll);
+            const mainScroller = this.dom.mainView.querySelector('.overflow-y-auto');
+            if (mainScroller) {
+                mainScroller.addEventListener('scroll', this.handleScroll);
+            }
+            
+            this.dom.tabs.forEach(tab => {
+                tab.addEventListener('click', () => this.handleTabClick(tab));
+            });
+
             this.dom.timerModalEl.addEventListener('click', (e) => e.target === this.dom.timerModalEl && this.closeModal('timer-modal'));
             this.dom.prevWeekBtn.addEventListener('click', () => this.changeWeek(this.currentWeekIndex - 1));
             this.dom.nextWeekBtn.addEventListener('click', () => this.changeWeek(this.currentWeekIndex + 1));
             this.dom.addWeekBtn.addEventListener('click', this.addNewWeek);
-            this.dom.manageTemplatesBtn.addEventListener('click', () => this.showTemplateEditor());
-            this.dom.bottomNavBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const targetId = btn.dataset.target;
-                    if (targetId.endsWith('-modal')) {
-                        if (targetId === 'summary-modal') this.renderWeeklyChart();
-                        if (targetId === 'gallery-modal') this.renderSelfieGallery();
-                    } else {
-                        this.switchView(targetId);
-                    }
-                });
-            });
         };
         
-        // --- FUNGSI SCROLL ---
-        this.handleScroll = (e) => {
-            const currentScrollY = e.target.scrollTop;
-            const nav = this.dom.bottomNav;
-            if (currentScrollY > this.lastScrollY && currentScrollY > 50) {
-                nav.classList.add('nav-hidden');
-            } else if (currentScrollY < this.lastScrollY) {
-                nav.classList.remove('nav-hidden');
+        this.handleScroll = () => {};
+
+        this.handleTabClick = (clickedTab) => {
+            this.dom.tabs.forEach(t => {
+                t.classList.remove('active');
+            });
+            clickedTab.classList.add('active');
+
+            this.updateTabIndicator(clickedTab);
+
+            const targetId = clickedTab.dataset.target;
+            Array.from(this.dom.tabContentWrapper.children).forEach(content => {
+                content.classList.add('hidden');
+                if (content.id === targetId) {
+                    content.classList.remove('hidden');
+                }
+            });
+            
+            if (targetId === 'summary-content') this.renderWeeklyChart();
+            if (targetId === 'music-content') this.renderMusicPage();
+            if (targetId === 'library-content') this.renderLibraryPage();
+        };
+        
+        this.updateTabIndicator = (activeTab, animated = true) => {
+            const indicator = this.dom.tabIndicator;
+            if (!indicator || !activeTab) return;
+            const tabRect = activeTab.getBoundingClientRect();
+            const containerRect = activeTab.parentElement.getBoundingClientRect();
+            
+            if (!animated) {
+                indicator.style.transition = 'none';
             }
-            this.lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
+            
+            indicator.style.width = `${tabRect.width}px`;
+            indicator.style.left = `${tabRect.left - containerRect.left}px`;
+
+            if (!animated) {
+                setTimeout(() => {
+                    indicator.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                }, 50);
+            }
         };
 
         // --- FUNGSI-FUNGSI VIEW & RENDER ---
@@ -306,10 +452,8 @@
             const nextViewEl = document.getElementById(viewId);
             if (!nextViewEl || this.currentView === viewId) return;
 
-            // Reset scroll tracking and ensure nav is visible when changing views
             this.lastScrollY = 0;
-            this.dom.bottomNav.classList.remove('nav-hidden');
-
+            
             currentViewEl.classList.add('view-leave-active');
             setTimeout(() => {
                 currentViewEl.classList.add('hidden');
@@ -342,7 +486,10 @@
                 const completedSets = dayData.exercises.reduce((acc, ex) => acc + (ex.completed ? ex.completed.filter(Boolean).length : 0), 0);
                 const isCompleted = totalSets > 0 && completedSets === totalSets;
                 return `
-                    <div class="relative rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300" onclick="app.switchView('workout-detail-view', ${dayKey})">
+                    <div class="activity-card relative rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300" 
+                         data-day-name="${dayName}" 
+                         data-workout-name="${dayData.name}" 
+                         onclick="app.switchView('workout-detail-view', ${dayKey})">
                         <div class="absolute inset-0 bg-gradient-to-br ${style.color}"></div>
                         <div class="relative p-4 h-40 flex flex-col justify-between text-white">
                             <div>
@@ -358,7 +505,7 @@
             }).join('');
         };
 
-        this.renderWorkoutDetailView = (dayIndex) => {
+        this.renderWorkoutDetailView = (dayIndex, scrollPosition = null) => {
             const weekData = this.appData.weeks[this.currentWeekIndex];
             const dayData = weekData.schedule[dayIndex];
             const isRestDay = parseInt(dayIndex) === 0;
@@ -377,7 +524,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/></svg>
                             Upload Progress Photo
                         </label>
-                        <input type="file" id="selfie-upload-${this.currentWeekIndex}" class="hidden" accept="image/*" onchange="app.handlePhotoUpload(event, ${this.currentWeekIndex})">
+                        <input type="file" id="selfie-upload-${this.currentWeekIndex}" class="hidden" accept="image/*" onchange="app.handlePhotoUpload(event, true)">
                     </div>`;
                 contentHTML += `<div class="bg-[#1c1c1e] rounded-2xl p-6 text-center shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400 mb-4 mx-auto"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg><h2 class="text-xl font-bold">${dayData.name}</h2><p class="text-gray-400">${dayData.exercises[0].name}</p>${selfieHTML}</div>`;
             } else {
@@ -385,10 +532,22 @@
                     const totalSets = this.parseSets(ex.sets);
                     return `<div class="bg-[#1c1c1e] rounded-2xl p-4 shadow-lg"><div class="flex justify-between items-start"><h3 class="font-bold text-lg text-white">${ex.name}</h3><p class="text-sm font-medium text-purple-400 bg-gray-700 px-2 py-1 rounded-md">${ex.sets}</p></div><div class="space-y-2 mt-3">${Array.from({ length: totalSets }).map((_, setIdx) => `<div class="flex items-center justify-between bg-gray-800 rounded-lg p-2"><div class="flex items-center"><input type="checkbox" id="check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="hidden" onchange="app.toggleSet(${dayIndex}, ${exIdx}, ${setIdx})" ${ex.completed[setIdx] ? 'checked' : ''}><label for="check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="flex items-center cursor-pointer"><span class="w-6 h-6 rounded-md border-2 ${ex.completed[setIdx] ? 'bg-purple-500 border-purple-500' : 'border-gray-500'} flex items-center justify-center mr-3 transition-all duration-200">${ex.completed[setIdx] ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}</span><span class="font-medium text-gray-200">Set ${setIdx + 1}</span></label></div><button onclick="app.openTimerModal(${dayIndex}, ${exIdx}, ${setIdx})" class="flex items-center gap-1 bg-gray-600 hover:bg-purple-600 text-white font-semibold px-3 py-1 rounded-md text-sm transition-colors duration-200" ${ex.completed[setIdx] ? 'disabled' : ''}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Timer</button></div>`).join('')}</div></div>`
                 }).join('');
+                contentHTML += `<div id="daily-summary-container" class="mt-4"></div>`;
             }
             contentHTML += `</main>`;
             this.dom.workoutDetailView.innerHTML = contentHTML;
             this.dom.workoutDetailView.querySelector('main').addEventListener('scroll', this.handleScroll);
+            
+            if (!isRestDay) {
+                this.renderDailySummary(dayIndex);
+            }
+            
+            if (scrollPosition !== null) {
+                const newScroller = this.dom.workoutDetailView.querySelector('#workout-list');
+                if (newScroller) {
+                    newScroller.scrollTop = scrollPosition;
+                }
+            }
         };
 
         this.parseSets = (setsString) => {
@@ -398,13 +557,16 @@
         };
 
         this.toggleSet = (dayIndex, exIdx, setIdx) => { 
+            const mainScroller = this.dom.workoutDetailView.querySelector('#workout-list');
+            const scrollPos = mainScroller ? mainScroller.scrollTop : 0;
+            
             const isChecked = document.getElementById(`check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}`).checked; 
             this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx].completed[setIdx] = isChecked; 
             this.saveData(); 
-            this.renderWorkoutDetailView(dayIndex); 
+            
+            this.renderWorkoutDetailView(dayIndex, scrollPos); 
         };
 
-        // --- FUNGSI PEKAN (WEEK) & TEMPLATE ---
         this.changeWeek = (weekIndex) => { 
             if (weekIndex < 0 || weekIndex >= this.appData.weeks.length) return;
             this.currentWeekIndex = weekIndex; 
@@ -414,7 +576,7 @@
         this.addNewWeek = () => { this.renderTemplateSelection(); this.openModal('template-select-modal'); };
         this.renderTemplateSelection = () => {
             const templates = [{ name: "Default Program" }, ...this.appData.templates];
-            this.dom.templateOptionsEl.innerHTML = templates.map((t, i) => `<button class="w-full text-left bg-gray-700 hover:bg-purple-500 p-3 rounded-lg" onclick='app.commitNewWeek(${i === 0 ? null : JSON.stringify(t)})'>${t.name}</button>`).join('');
+            this.dom.templateOptionsEl.innerHTML = templates.map((t, i) => `<button class="w-full text-left bg-gray-700 hover:bg-purple-500 p-3 rounded-lg transition-colors" onclick='app.commitNewWeek(${i === 0 ? null : JSON.stringify(t)})'>${t.name}</button>`).join('');
         };
         this.commitNewWeek = (template) => {
             const newWeekNumber = this.appData.weeks.length + 1;
@@ -428,12 +590,10 @@
             this.closeModal('template-select-modal');
         };
 
-        // --- FUNGSI TIMER ---
         this.openTimerModal = (dayIndex, exIdx, setIdx) => { this.activeTimerInfo = { dayIndex, exIdx, setIdx }; const exName = this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx].name; this.dom.timerExerciseNameEl.textContent = `Rest after: ${exName} - Set ${setIdx + 1}`; this.dom.durationSelectionEl.style.display = 'block'; this.dom.countdownDisplayEl.style.display = 'none'; this.dom.finishButtonEl.style.display = 'none'; this.dom.countdownMessageEl.textContent = 'Rest time...'; this.openModal('timer-modal'); };
-        this.startCountdown = (duration) => { this.dom.durationSelectionEl.style.display = 'none'; this.dom.countdownDisplayEl.style.display = 'block'; let timer = duration; const updateDisplay = () => { const minutes = Math.floor(timer / 60).toString().padStart(2, '0'); const seconds = (timer % 60).toString().padStart(2, '0'); this.dom.countdownTimerEl.textContent = `${minutes}:${seconds}`; }; updateDisplay(); this.timerInterval = setInterval(() => { timer--; updateDisplay(); if (timer < 0) { clearInterval(this.timerInterval); this.dom.countdownMessageEl.textContent = 'Time\'s up!'; this.dom.finishButtonEl.style.display = 'block'; try { this.tingSound.play(); } catch(e) {} } }, 1000); };
-        this.finishTimer = () => { const { dayIndex, exIdx, setIdx } = this.activeTimerInfo; this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx].completed[setIdx] = true; this.saveData(); this.renderWorkoutDetailView(dayIndex); this.closeModal('timer-modal'); };
-
-        // --- FITUR LAINNYA ---
+        this.startCountdown = (duration) => { clearInterval(this.timerInterval); this.dom.durationSelectionEl.style.display = 'none'; this.dom.countdownDisplayEl.style.display = 'block'; let timer = duration; const updateDisplay = () => { const minutes = Math.floor(timer / 60).toString().padStart(2, '0'); const seconds = (timer % 60).toString().padStart(2, '0'); this.dom.countdownTimerEl.textContent = `${minutes}:${seconds}`; }; updateDisplay(); this.timerInterval = setInterval(() => { timer--; updateDisplay(); if (timer < 0) { clearInterval(this.timerInterval); this.dom.countdownMessageEl.textContent = 'Time\'s up!'; this.dom.finishButtonEl.style.display = 'block'; try { this.tingSound.play(); } catch(e) {console.error("Audio play failed", e)} } }, 1000); };
+        this.finishTimer = () => { clearInterval(this.timerInterval); const { dayIndex, exIdx, setIdx } = this.activeTimerInfo; this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx].completed[setIdx] = true; this.saveData(); this.renderWorkoutDetailView(dayIndex); this.closeModal('timer-modal'); };
+        
         this.showMotivationalQuote = () => {
             const today = new Date().toDateString();
             if (this.appData.settings.lastQuoteDate === today) return;
@@ -472,51 +632,307 @@
                 data: { labels: this.dayNames.slice(1), datasets: [{ label: 'Sets Completed', data: setsPerDay, backgroundColor: 'rgba(192, 132, 252, 0.7)', borderColor: 'rgba(192, 132, 252, 1)', borderWidth: 1, borderRadius: 4, }] },
                 options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#9ca3af', stepSize: 1 }, grid: { color: '#4b5563' } }, y: { ticks: { color: '#d1d5db' }, grid: { color: '#4b5563' } } } }
             });
-            this.openModal('summary-modal');
         };
 
-        this.handlePhotoUpload = (event, weekIndex) => {
+        this.handlePhotoUpload = (event, fromRestDay = false) => {
             const file = event.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = this.dom.imageResizerCanvas;
-                    const ctx = canvas.getContext('2d');
-                    const MAX_WIDTH = 600;
-                    const scale = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scale;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    this.appData.weeks[weekIndex].selfie = dataUrl;
-                    this.saveData();
-                    alert('Photo saved successfully!');
-                    this.renderWorkoutDetailView(0); // Refresh rest day view
+                const photoData = {
+                    week: this.appData.weeks[this.currentWeekIndex].name,
+                    date: new Date().toISOString(),
+                    dataUrl: e.target.result
                 };
-                img.src = e.target.result;
+                this.addPhoto(photoData).then(() => {
+                    this.showToast("Foto berhasil diupload!");
+                    if (fromRestDay) {
+                         this.renderWorkoutDetailView(0);
+                    } else {
+                         this.renderLibraryPage();
+                    }
+                });
             };
             reader.readAsDataURL(file);
         };
+        
+        this.showToast = (message) => {
+            const toast = this.dom.motivationalToastEl;
+            toast.querySelector('p').textContent = message;
+            toast.classList.remove('hidden', 'bg-purple-500');
+            toast.classList.add('bg-green-500');
+            toast.classList.add('toast-enter', 'toast-enter-active');
+            setTimeout(() => {
+                toast.classList.remove('toast-enter-active');
+                toast.classList.add('toast-leave-active');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('toast-enter', 'toast-leave-active', 'bg-green-500');
+                    toast.classList.add('bg-purple-500');
+                }, 2000);
+            }, 2000);
+        };
+        
+        // --- FUNGSI MUSIC & LIBRARY ---
 
-        this.renderSelfieGallery = () => {
-            this.dom.galleryContentEl.innerHTML = '';
-            const weeksWithSelfies = this.appData.weeks.filter(w => w.selfie);
-            if (weeksWithSelfies.length === 0) {
-                this.dom.galleryContentEl.innerHTML = '<p class="text-gray-400">No photos uploaded yet. Upload your weekly progress photo on Rest Day!</p>';
-            } else {
-                weeksWithSelfies.forEach(week => {
-                    this.dom.galleryContentEl.innerHTML += `<div class="relative"><img src="${week.selfie}" class="rounded-lg w-full"><p class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">${week.name}</p></div>`;
+        this.handleSongUpload = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            this.tempSongFile = file;
+            this.dom.songTitleInput.value = file.name.replace(/\.[^/.]+$/, "");
+            this.dom.songArtistInput.value = "Unknown Artist";
+            this.openModal('add-song-modal');
+            event.target.value = '';
+        };
+        
+        this.commitAddSong = () => {
+            const title = this.dom.songTitleInput.value.trim();
+            const artist = this.dom.songArtistInput.value.trim();
+            const file = this.tempSongFile;
+
+            if (title && artist && file) {
+                const song = {
+                    title: title,
+                    artist: artist,
+                    file: file
+                };
+                this.addSong(song).then(() => {
+                    this.showToast("Lagu ditambahkan!");
+                    this.renderMusicPage();
+                    this.closeModal('add-song-modal');
+                    this.tempSongFile = null;
                 });
+            } else {
+                this.showToast("Judul dan Artis tidak boleh kosong!");
             }
-            this.openModal('gallery-modal');
         };
 
-        this.showTemplateEditor = () => { /* ... (fungsi editor template tidak diubah) ... */ };
-        this.hideTemplateEditor = () => { /* ... (fungsi editor template tidak diubah) ... */ };
-        this.requestNotificationPermission = async () => { /* ... (fungsi notifikasi tidak diubah) ... */ };
-        this.showDailyReminderNotification = () => { /* ... (fungsi notifikasi tidak diubah) ... */ };
+        this.renderMusicPage = async () => {
+            const songs = await this.getSongs();
+            if (songs.length === 0) {
+                this.dom.songList.innerHTML = `<p class="text-gray-400 text-center py-8">Belum ada lagu. Tambahkan lagu pertamamu!</p>`;
+                return;
+            }
+            this.dom.songList.innerHTML = songs.map((song, index) => {
+                const colorClass = this.songCardStyles[index % this.songCardStyles.length];
+                return `
+                <div class="song-item bg-gradient-to-br ${colorClass} p-3 rounded-lg flex items-center gap-4 shadow-md">
+                    <button onclick="app.togglePlaySong(${song.id}, this)" class="p-3 rounded-full bg-black/20 hover:bg-black/40 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="play-icon" viewBox="0 0 16 16"><path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="pause-icon hidden" viewBox="0 0 16 16"><path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/></svg>
+                    </button>
+                    <div class="flex-grow">
+                        <p class="font-semibold text-white shadow-black/50 [text-shadow:1px_1px_2px_var(--tw-shadow-color)]">${song.title}</p>
+                        <p class="text-sm text-white/80 shadow-black/50 [text-shadow:1px_1px_2px_var(--tw-shadow-color)]">${song.artist}</p>
+                    </div>
+                     <button onclick="app.deleteSong(${song.id})" class="p-2 rounded-full text-white/80 hover:bg-black/30 hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    </button>
+                </div>
+            `}).join('');
+        };
+        
+        this.togglePlaySong = async (songId, buttonEl) => {
+            const player = this.dom.audioPlayer;
+            const isPlaying = this.currentlyPlaying.songId === songId && !player.paused;
+
+            document.querySelectorAll('.song-item button.playing').forEach(btn => {
+                btn.classList.remove('playing');
+                btn.querySelector('.play-icon').classList.remove('hidden');
+                btn.querySelector('.pause-icon').classList.add('hidden');
+            });
+
+            if (isPlaying) {
+                player.pause();
+                this.currentlyPlaying.songId = null;
+            } else {
+                const song = await this.getSong(songId);
+                const url = URL.createObjectURL(song.file);
+                player.src = url;
+                player.play();
+                this.currentlyPlaying.songId = songId;
+                this.currentlyPlaying.audio = player;
+                
+                buttonEl.classList.add('playing');
+                buttonEl.querySelector('.play-icon').classList.add('hidden');
+                buttonEl.querySelector('.pause-icon').classList.remove('hidden');
+
+                player.onended = () => {
+                    buttonEl.classList.remove('playing');
+                    buttonEl.querySelector('.play-icon').classList.remove('hidden');
+                    buttonEl.querySelector('.pause-icon').classList.add('hidden');
+                    this.currentlyPlaying.songId = null;
+                };
+            }
+        };
+
+        this.renderLibraryPage = async () => {
+            const photos = await this.getPhotos();
+            if (photos.length === 0) {
+                this.dom.photoGallery.innerHTML = `<p class="text-gray-400 text-center py-8 col-span-2">Belum ada foto progress. Upload foto pertamamu!</p>`;
+                return;
+            }
+            this.dom.photoGallery.innerHTML = photos.map(photo => `
+                <div class="relative group cursor-pointer" onclick="app.showPhotoPreview('${photo.dataUrl}')">
+                    <img src="${photo.dataUrl}" class="rounded-lg w-full h-full object-cover aspect-square">
+                    <div class="absolute bottom-0 left-0 bg-black/50 text-white text-xs px-2 py-1 rounded-br-lg rounded-tl-lg">
+                        <p class="font-semibold">${photo.week}</p>
+                        <p>${new Date(photo.date).toLocaleDateString('id-ID')}</p>
+                    </div>
+                    <button onclick="event.stopPropagation(); app.deletePhoto(${photo.id})" class="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    </button>
+                </div>
+            `).join('');
+        };
+
+        this.showPhotoPreview = (dataUrl) => {
+            this.dom.photoPreviewImg.src = dataUrl;
+            this.openModal('photo-preview-modal');
+        };
+
+        // --- FUNGSI DATABASE (IndexedDB) ---
+        this.addSong = (song) => {
+            return new Promise((resolve) => {
+                const transaction = this.db.transaction(["songs"], "readwrite");
+                const store = transaction.objectStore("songs");
+                store.add(song);
+                transaction.oncomplete = () => resolve();
+            });
+        };
+        this.getSongs = () => {
+            return new Promise((resolve) => {
+                const transaction = this.db.transaction(["songs"], "readonly");
+                const store = transaction.objectStore("songs");
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+            });
+        };
+        this.getSong = (id) => {
+            return new Promise((resolve) => {
+                const transaction = this.db.transaction(["songs"], "readonly");
+                const store = transaction.objectStore("songs");
+                const request = store.get(id);
+                request.onsuccess = () => resolve(request.result);
+            });
+        };
+        this.deleteSong = (id) => {
+            const transaction = this.db.transaction(["songs"], "readwrite");
+            const store = transaction.objectStore("songs");
+            store.delete(id);
+            transaction.oncomplete = () => {
+                this.showToast("Lagu dihapus!");
+                this.renderMusicPage();
+            };
+        };
+        this.addPhoto = (photo) => {
+            return new Promise((resolve) => {
+                const transaction = this.db.transaction(["photos"], "readwrite");
+                const store = transaction.objectStore("photos");
+                store.add(photo);
+                transaction.oncomplete = () => resolve();
+            });
+        };
+        this.getPhotos = () => {
+            return new Promise((resolve) => {
+                const transaction = this.db.transaction(["photos"], "readonly");
+                const store = transaction.objectStore("photos");
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result.reverse()); // Tampilkan yang terbaru dulu
+            });
+        };
+        this.deletePhoto = (id) => {
+            const transaction = this.db.transaction(["photos"], "readwrite");
+            const store = transaction.objectStore("photos");
+            store.delete(id);
+            transaction.oncomplete = () => {
+                this.showToast("Foto dihapus!");
+                this.renderLibraryPage();
+            };
+        };
+        
+        // --- FITUR KALORI ---
+        this.getExerciseInfo = (exerciseName) => {
+            const name = exerciseName.toLowerCase();
+            const keywords = Object.keys(this.calorieMap);
+            for (const key of keywords) {
+                if (name.includes(key)) {
+                    return this.calorieMap[key];
+                }
+            }
+            return this.calorieMap['default'];
+        };
+
+        this.calculateDailySummary = (dayIndex) => {
+            const dayData = this.appData.weeks[this.currentWeekIndex].schedule[dayIndex];
+            if (!dayData || !dayData.exercises) {
+                return { totalCalories: 0, totalDuration: 0, mainMuscles: [] };
+            }
+            let totalCalories = 0, totalDuration = 0;
+            const muscleSet = new Set();
+            dayData.exercises.forEach(ex => {
+                const exerciseInfo = this.getExerciseInfo(ex.name);
+                const completedSetsCount = ex.completed.filter(Boolean).length;
+                if (completedSetsCount > 0) {
+                    totalCalories += completedSetsCount * exerciseInfo.calories;
+                    totalDuration += completedSetsCount * exerciseInfo.duration;
+                    exerciseInfo.muscles.forEach(muscle => muscleSet.add(muscle));
+                }
+            });
+            return {
+                totalCalories: Math.round(totalCalories),
+                totalDuration: Math.round(totalDuration),
+                mainMuscles: [...muscleSet].slice(0, 3)
+            };
+        };
+
+        this.renderDailySummary = (dayIndex) => {
+            const summary = this.calculateDailySummary(dayIndex);
+            const container = document.getElementById('daily-summary-container');
+            if (!container) return;
+            if (summary.totalCalories === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = `
+                <div class="bg-[#1c1c1e] rounded-2xl p-4 space-y-3">
+                    <h3 class="text-lg font-bold text-white">Ringkasan Hari Ini</h3>
+                    <div class="flex items-center gap-3">
+                        <span class="text-orange-400 text-xl">🔥</span>
+                        <p>Kalori Terbakar: <strong id="calories-display" class="text-orange-400 font-bold">0 Kalori</strong></p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-gray-400 text-xl">🕒</span>
+                        <p>Total Durasi Perkiraan: <strong class="text-gray-400 font-bold">${summary.totalDuration} Menit</strong></p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400 text-xl">💪</span>
+                        <p>Otot Utama: <strong class="text-green-400 font-bold">${summary.mainMuscles.join(', ')}</strong></p>
+                    </div>
+                </div>
+            `;
+            const caloriesEl = document.getElementById('calories-display');
+            if (caloriesEl) {
+                this.animateValue(caloriesEl, 0, summary.totalCalories, 500);
+            }
+        };
+
+        this.animateValue = (element, start, end, duration) => {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.innerHTML = `${Math.floor(progress * (end - start) + start)} Kalori`;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        this.requestNotificationPermission = async () => { console.log("Requesting notification permission (placeholder)..."); };
 
         this.generateStoryImage = (dayIndex) => {
             const weekData = this.appData.weeks[this.currentWeekIndex];
@@ -524,10 +940,9 @@
             this.dom.snapshot.title.textContent = `Progress ${this.dayNames[dayIndex]} ✅`;
             this.dom.snapshot.date.textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
             this.dom.snapshot.list.innerHTML = dayData.exercises.map(ex => { const totalSets = this.parseSets(ex.sets); const completedCount = ex.completed.filter(Boolean).length; return `<div class="bg-gray-700 p-3 rounded-lg flex justify-between items-center"><span class="font-medium">${ex.name}</span><span class="font-bold text-purple-400">${completedCount}/${totalSets}</span></div>` }).join('');
-            html2canvas(this.dom.snapshot.content, { useCORS: true, scale: 2, backgroundColor: null }).then(canvas => { const link = document.createElement('a'); link.download = `FWorkout_Progress_${this.dayNames[dayIndex]}_${weekData.name.replace(/\s/g, '')}.png`; link.href = canvas.toDataURL('image/png'); link.click(); }).catch(err => { console.error("Oops, something went wrong!", err); alert("Failed to create image."); });
+            html2canvas(this.dom.snapshot.content, { useCORS: true, scale: 2, backgroundColor: null }).then(canvas => { const link = document.createElement('a'); link.download = `FWorkout_Progress_${this.dayNames[dayIndex]}_${weekData.name.replace(/\s/g, '')}.png`; link.href = canvas.toDataURL('image/png'); link.click(); }).catch(err => { console.error("Oops, something went wrong!", err); this.showToast("Failed to create image."); });
         };
         
-        // --- PENYIMPANAN DATA ---
         this.createWeekData = (name, schedule) => {
             const newSchedule = JSON.parse(JSON.stringify(schedule));
             Object.values(newSchedule).forEach(day => { if(day.exercises) day.exercises.forEach(ex => { ex.completed = Array(this.parseSets(ex.sets)).fill(false); }); });
@@ -540,17 +955,22 @@
                 const parsed = JSON.parse(savedData);
                 this.appData = { weeks: parsed.weeks || [], templates: parsed.templates || [], settings: parsed.settings || {}, };
                 this.currentWeekIndex = parsed.currentWeekIndex || 0;
+                 if (this.currentWeekIndex >= this.appData.weeks.length) {
+                    this.currentWeekIndex = this.appData.weeks.length > 0 ? this.appData.weeks.length - 1 : 0;
+                }
             }
             if (this.appData.weeks.length === 0) {
                 this.appData.weeks.push(this.createWeekData("Week 1", this.initialWeekSchedule));
                 this.currentWeekIndex = 0;
             }
+            if (!this.appData.templates) {
+                this.appData.templates = [];
+            }
             this.saveData();
         };
         
-        // --- HELPER MODAL ---
         this.openModal = (id) => { const el = document.getElementById(id); if(el) { el.classList.remove('hidden'); setTimeout(() => el.querySelector('.modal-enter')?.classList.add('modal-enter-active'), 10); } };
-        this.closeModal = (id) => { const el = document.getElementById(id); if(el) { el.querySelector('.modal-enter')?.classList.remove('modal-enter-active'); el.querySelector('.modal-enter')?.classList.add('modal-leave-active'); setTimeout(() => { el.classList.add('hidden'); el.querySelector('.modal-enter')?.classList.remove('modal-leave-active'); }, 200); } };
+        this.closeModal = (id) => { const el = document.getElementById(id); if(el) { const modalContent = el.querySelector('.modal-enter'); if(modalContent) { modalContent.classList.remove('modal-enter-active'); modalContent.classList.add('modal-leave-active'); } setTimeout(() => { el.classList.add('hidden'); if(modalContent) { modalContent.classList.remove('modal-leave-active'); } }, 200); } };
     };
 
     const app = new App();
