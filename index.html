@@ -73,34 +73,29 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* REVISI: Style untuk header sticky dengan efek glassmorphism */
         .sticky-header {
             position: sticky;
             top: 0;
             z-index: 10;
             transition: background-color 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out;
-             /* Garis bawah dihapus dari state awal */
         }
-        /* Pseudo-element untuk background dan efek blur */
         .sticky-header::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            z-index: -1; /* Diletakkan di belakang konten header */
-            background-color: rgba(0, 0, 0, 0.25); /* Sedikit transparan dari awal (25%) */
-            backdrop-filter: blur(5px); /* Efek blur ringan dari awal (5%) */
+            z-index: -1;
+            background-color: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
-            /* Efek feather di bagian bawah header */
             -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
             transition: background-color 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out;
         }
         .sticky-header.scrolled::before {
-            background-color: rgba(28, 28, 30, 0.75); /* Warna lebih pekat saat scroll */
-            backdrop-filter: blur(12px); /* Efek blur lebih kuat saat scroll */
+            background-color: rgba(28, 28, 30, 0.75);
+            backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
-        /* Memastikan konten header (teks, tombol) tidak ikut blur */
         .sticky-header > * {
             position: relative;
             z-index: 1;
@@ -188,7 +183,9 @@
             </div>
         </div>
 
-        <div id="workout-detail-view" class="hidden flex flex-col flex-grow overflow-y-auto no-scrollbar"></div>
+        <div id="workout-detail-view" class="hidden flex flex-col flex-grow overflow-hidden"></div>
+        
+        <div id="exercise-session-view" class="hidden flex flex-col flex-grow overflow-y-auto no-scrollbar"></div>
     </div>
 
     <!-- Modal -->
@@ -359,7 +356,7 @@
             'skullcrusher': { calories: 8, duration: 1.5, muscles: ['Triceps'] },
             'default': { calories: 8, duration: 1.5, muscles: ['General'] } // Fallback
         };
-        this.tingSound = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg-');
+        this.tingSound = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC-');
 
         // --- STATE APLIKASI ---
         this.appData = { weeks: [], templates: [], settings: {} };
@@ -382,6 +379,7 @@
         this.dom = {
             mainView: document.getElementById('main-view'),
             workoutDetailView: document.getElementById('workout-detail-view'),
+            exerciseSessionView: document.getElementById('exercise-session-view'),
             activityCards: document.getElementById('activity-cards'),
             weekTitle: document.getElementById('week-title'),
             prevWeekBtn: document.getElementById('prev-week-btn'),
@@ -495,7 +493,7 @@
         };
 
         // --- FUNGSI-FUNGSI VIEW & RENDER ---
-        this.switchView = (viewId, dayIndex = null) => {
+        this.switchView = (viewId, params = null) => {
             const currentViewEl = document.getElementById(this.currentView);
             const nextViewEl = document.getElementById(viewId);
             if (!nextViewEl || this.currentView === viewId) return;
@@ -506,11 +504,16 @@
             setTimeout(() => {
                 currentViewEl.classList.add('hidden');
                 currentViewEl.classList.remove('view-leave-active');
+
                 if (viewId === 'workout-detail-view') {
-                    this.renderWorkoutDetailView(dayIndex);
-                } else {
+                    this.renderWorkoutDetailView(params);
+                } else if (viewId === 'exercise-session-view') {
+                    this.renderExerciseSessionView(params.dayIndex, params.exIdx);
+                }
+                 else {
                     this.renderMainView();
                 }
+
                 nextViewEl.classList.remove('hidden');
                 nextViewEl.classList.add('view-enter');
                 this.currentView = viewId;
@@ -586,7 +589,18 @@
             } else {
                  mainContentHTML += dayData.exercises.map((ex, exIdx) => {
                     const totalSets = this.parseSets(ex.sets);
-                    return `<div class="bg-[#1c1c1e] rounded-2xl p-4 shadow-lg"><div class="flex justify-between items-start"><h3 class="font-bold text-lg text-white">${ex.name}</h3><p class="text-sm font-medium text-purple-400 bg-gray-700 px-2 py-1 rounded-md">${ex.sets}</p></div><div class="space-y-2 mt-3">${Array.from({ length: totalSets }).map((_, setIdx) => `<div class="flex items-center justify-between bg-gray-800 rounded-lg p-2"><div class="flex items-center"><input type="checkbox" id="check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="hidden" onchange="app.toggleSet(${dayIndex}, ${exIdx}, ${setIdx})" ${ex.completed[setIdx] ? 'checked' : ''}><label for="check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="flex items-center cursor-pointer"><span class="w-6 h-6 rounded-md border-2 ${ex.completed[setIdx] ? 'bg-purple-500 border-purple-500' : 'border-gray-500'} flex items-center justify-center mr-3 transition-all duration-200">${ex.completed[setIdx] ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}</span><span class="font-medium text-gray-200">Set ${setIdx + 1}</span></label></div><button onclick="app.openTimerModal(${dayIndex}, ${exIdx}, ${setIdx})" class="flex items-center gap-1 bg-gray-600 hover:bg-purple-600 text-white font-semibold px-3 py-1 rounded-md text-sm transition-colors duration-200" ${ex.completed[setIdx] ? 'disabled' : ''}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Timer</button></div>`).join('')}</div></div>`
+                    const clickableClass = ex.name === "Dumbbell Chest Press" ? "cursor-pointer hover:bg-gray-700" : "";
+                    const clickAction = ex.name === "Dumbbell Chest Press" ? `onclick="app.switchView('exercise-session-view', { dayIndex: ${dayIndex}, exIdx: ${exIdx} })"` : "";
+
+                    return `<div class="bg-[#1c1c1e] rounded-2xl p-4 shadow-lg">
+                                <div class="flex justify-between items-start ${clickableClass}" ${clickAction}>
+                                    <h3 class="font-bold text-lg text-white">${ex.name}</h3>
+                                    <p class="text-sm font-medium text-purple-400 bg-gray-700 px-2 py-1 rounded-md">${ex.sets}</p>
+                                </div>
+                                <div class="space-y-2 mt-3">
+                                    ${Array.from({ length: totalSets }).map((_, setIdx) => `<div class="flex items-center justify-between bg-gray-800 rounded-lg p-2"><div class="flex items-center"><input type="checkbox" id="check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="hidden" onchange="app.toggleSet(${dayIndex}, ${exIdx}, ${setIdx})" ${ex.completed[setIdx] ? 'checked' : ''}><label for="check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="flex items-center cursor-pointer"><span class="w-6 h-6 rounded-md border-2 ${ex.completed[setIdx] ? 'bg-purple-500 border-purple-500' : 'border-gray-500'} flex items-center justify-center mr-3 transition-all duration-200">${ex.completed[setIdx] ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}</span><span class="font-medium text-gray-200">Set ${setIdx + 1}</span></label></div><button onclick="app.openTimerModal(${dayIndex}, ${exIdx}, ${setIdx})" class="flex items-center gap-1 bg-gray-600 hover:bg-purple-600 text-white font-semibold px-3 py-1 rounded-md text-sm transition-colors duration-200" ${ex.completed[setIdx] ? 'disabled' : ''}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Timer</button></div>`).join('')}
+                                </div>
+                            </div>`
                 }).join('');
                 mainContentHTML += `<div id="daily-summary-container" class="mt-4"></div>`;
             }
@@ -603,6 +617,72 @@
             }
         };
 
+        this.renderExerciseSessionView = (dayIndex, exIdx, scrollPosition = null) => {
+            const exercise = this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx];
+            const exerciseInfo = this.getExerciseInfo(exercise.name);
+            const totalSets = this.parseSets(exercise.sets);
+            
+            const completedSetsCount = exercise.completed.filter(Boolean).length;
+            const caloriesBurned = completedSetsCount * exerciseInfo.calories;
+            const duration = completedSetsCount * exerciseInfo.duration;
+
+            let contentHTML = `
+                <header class="sticky-header p-4 pt-6 flex-shrink-0 sticky top-0 z-10 flex items-center">
+                    <button onclick="app.switchView('workout-detail-view', ${dayIndex})" class="p-2 -ml-2 mr-2 rounded-full hover:bg-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <h2 class="text-2xl font-bold truncate">${exercise.name}</h2>
+                </header>
+                <main class="flex-grow p-4 space-y-4 main-content-padding">
+                    <div>
+                        <img src="https://i.imgur.com/2oxMItF.png" alt="${exercise.name}" class="rounded-2xl w-full object-cover aspect-video shadow-lg">
+                    </div>
+                    <div class="bg-[#1c1c1e] rounded-2xl p-4 shadow-lg">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-lg text-white">Sets</h3>
+                            <p class="text-sm font-medium text-purple-400 bg-gray-700 px-2 py-1 rounded-md">${exercise.sets}</p>
+                        </div>
+                        <div class="space-y-2 mt-3">
+                            ${Array.from({ length: totalSets }).map((_, setIdx) => `
+                                <div class="flex items-center justify-between bg-gray-800 rounded-lg p-2">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="ex-check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="hidden" onchange="app.toggleSet(${dayIndex}, ${exIdx}, ${setIdx})" ${exercise.completed[setIdx] ? 'checked' : ''}>
+                                        <label for="ex-check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="flex items-center cursor-pointer">
+                                            <span class="w-6 h-6 rounded-md border-2 ${exercise.completed[setIdx] ? 'bg-purple-500 border-purple-500' : 'border-gray-500'} flex items-center justify-center mr-3 transition-all duration-200">
+                                                ${exercise.completed[setIdx] ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+                                            </span>
+                                            <span class="font-medium text-gray-200">Set ${setIdx + 1}</span>
+                                        </label>
+                                    </div>
+                                    <button onclick="app.openTimerModal(${dayIndex}, ${exIdx}, ${setIdx})" class="flex items-center gap-1 bg-gray-600 hover:bg-purple-600 text-white font-semibold px-3 py-1 rounded-md text-sm transition-colors duration-200" ${exercise.completed[setIdx] ? 'disabled' : ''}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Timer
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div id="exercise-summary-container">
+                         <div class="bg-[#1c1c1e] rounded-2xl p-4 space-y-3">
+                            <h3 class="text-lg font-bold text-white">Ringkasan Latihan</h3>
+                            <div class="flex items-center gap-3">
+                                <span class="text-orange-400 text-xl">🔥</span>
+                                <p>Kalori Terbakar: <strong class="text-orange-400 font-bold">${caloriesBurned} Kalori</strong></p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-gray-400 text-xl">🕒</span>
+                                <p>Total Durasi Perkiraan: <strong class="text-gray-400 font-bold">${duration} Menit</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            `;
+            this.dom.exerciseSessionView.innerHTML = contentHTML;
+            this.dom.exerciseSessionView.addEventListener('scroll', (e) => this.handleScroll(e, this.dom.exerciseSessionView.querySelector('.sticky-header')));
+            if (scrollPosition !== null) {
+                this.dom.exerciseSessionView.scrollTop = scrollPosition;
+            }
+        };
+
         this.parseSets = (setsString) => {
             if (typeof setsString !== 'string') return 1;
             const match = setsString.match(/^(\d+)/);
@@ -610,14 +690,22 @@
         };
 
         this.toggleSet = (dayIndex, exIdx, setIdx) => { 
-            const mainScroller = this.dom.workoutDetailView;
-            const scrollPos = mainScroller ? mainScroller.scrollTop : 0;
+            const currentScroller = this.dom[this.currentView];
+            const scrollPos = currentScroller ? currentScroller.scrollTop : 0;
             
-            const isChecked = document.getElementById(`check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}`).checked; 
+            const checkboxId = this.currentView === 'exercise-session-view' 
+                ? `ex-check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}`
+                : `check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}`;
+
+            const isChecked = document.getElementById(checkboxId).checked; 
             this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx].completed[setIdx] = isChecked; 
             this.saveData(); 
             
-            this.renderWorkoutDetailView(dayIndex, scrollPos); 
+            if (this.currentView === 'workout-detail-view') {
+                this.renderWorkoutDetailView(dayIndex, scrollPos);
+            } else if (this.currentView === 'exercise-session-view') {
+                this.renderExerciseSessionView(dayIndex, exIdx, scrollPos);
+            }
         };
 
         this.changeWeek = (weekIndex) => { 
@@ -634,7 +722,7 @@
         this.commitNewWeek = (template) => {
             const newWeekNumber = this.appData.weeks.length + 1;
             const schedule = template ? template.schedule : this.initialWeekSchedule;
-            const newWeekName = template ? template.name : `Week ${newWeekNumber}`;
+            const newWeekName = `Week ${newWeekNumber}`;
             
             const newWeek = this.createWeekData(newWeekName, schedule);
             this.appData.weeks.push(newWeek);
@@ -646,7 +734,20 @@
 
         this.openTimerModal = (dayIndex, exIdx, setIdx) => { this.activeTimerInfo = { dayIndex, exIdx, setIdx }; const exName = this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx].name; this.dom.timerExerciseNameEl.textContent = `Rest after: ${exName} - Set ${setIdx + 1}`; this.dom.durationSelectionEl.style.display = 'block'; this.dom.countdownDisplayEl.style.display = 'none'; this.dom.finishButtonEl.style.display = 'none'; this.dom.countdownMessageEl.textContent = 'Rest time...'; this.openModal('timer-modal'); };
         this.startCountdown = (duration) => { clearInterval(this.timerInterval); this.dom.durationSelectionEl.style.display = 'none'; this.dom.countdownDisplayEl.style.display = 'block'; let timer = duration; const updateDisplay = () => { const minutes = Math.floor(timer / 60).toString().padStart(2, '0'); const seconds = (timer % 60).toString().padStart(2, '0'); this.dom.countdownTimerEl.textContent = `${minutes}:${seconds}`; }; updateDisplay(); this.timerInterval = setInterval(() => { timer--; updateDisplay(); if (timer < 0) { clearInterval(this.timerInterval); this.dom.countdownMessageEl.textContent = 'Time\'s up!'; this.dom.finishButtonEl.style.display = 'block'; try { this.tingSound.play(); } catch(e) {console.error("Audio play failed", e)} } }, 1000); };
-        this.finishTimer = () => { clearInterval(this.timerInterval); const { dayIndex, exIdx, setIdx } = this.activeTimerInfo; this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx].completed[setIdx] = true; this.saveData(); this.renderWorkoutDetailView(dayIndex); this.closeModal('timer-modal'); };
+        this.finishTimer = () => { 
+            clearInterval(this.timerInterval); 
+            const { dayIndex, exIdx, setIdx } = this.activeTimerInfo; 
+            this.appData.weeks[this.currentWeekIndex].schedule[dayIndex].exercises[exIdx].completed[setIdx] = true; 
+            this.saveData(); 
+            
+            if (this.currentView === 'workout-detail-view') {
+                this.renderWorkoutDetailView(dayIndex);
+            } else if (this.currentView === 'exercise-session-view') {
+                this.renderExerciseSessionView(dayIndex, exIdx);
+            }
+            
+            this.closeModal('timer-modal'); 
+        };
         
         this.showMotivationalQuote = () => {
             const today = new Date().toDateString();
@@ -1035,7 +1136,7 @@
                 }
             }
             if (this.appData.weeks.length === 0) {
-                this.appData.weeks.push(this.createWeekData("Default Program", this.initialWeekSchedule));
+                this.appData.weeks.push(this.createWeekData("Week 1", this.initialWeekSchedule));
                 this.currentWeekIndex = 0;
             }
             if (!this.appData.templates) {
