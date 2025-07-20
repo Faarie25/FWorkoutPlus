@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FWorkout+</title>
-    <!-- REVISI: Menambahkan Favicon Kustom -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='black'/%3E%3Cpath d='M25,20 H65 C75,20 75,30 65,30 H45 V45 H60 C70,45 70,55 60,55 H45 V85 H35 V20 Z' fill='%23FF3B80'/%3E%3Cpath d='M25,40 H55 C65,40 65,50 55,50 H45 V85 H35 V40 Z' fill='%23A2E500' transform='translate(0, -2)'/%3E%3Cpath d='M25,60 H45 C55,60 55,70 45,70 H35 V85 H25 Z' fill='%2300BFFF' transform='translate(0, -4)'/%3E%3Cpath d='M70 42 H86 M78 34 V50' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -73,6 +72,39 @@
             z-index: 1;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        /* REVISI: Style untuk header sticky dengan efek glassmorphism */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: background-color 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out;
+             /* Garis bawah dihapus dari state awal */
+        }
+        /* Pseudo-element untuk background dan efek blur */
+        .sticky-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1; /* Diletakkan di belakang konten header */
+            background-color: rgba(0, 0, 0, 0.25); /* Sedikit transparan dari awal (25%) */
+            backdrop-filter: blur(5px); /* Efek blur ringan dari awal (5%) */
+            -webkit-backdrop-filter: blur(5px);
+            /* Efek feather di bagian bawah header */
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            transition: background-color 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out;
+        }
+        .sticky-header.scrolled::before {
+            background-color: rgba(28, 28, 30, 0.75); /* Warna lebih pekat saat scroll */
+            backdrop-filter: blur(12px); /* Efek blur lebih kuat saat scroll */
+            -webkit-backdrop-filter: blur(12px);
+        }
+        /* Memastikan konten header (teks, tombol) tidak ikut blur */
+        .sticky-header > * {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body class="bg-black text-white antialiased">
@@ -81,13 +113,12 @@
     <div id="app-container" class="max-w-lg mx-auto h-screen bg-black flex flex-col">
 
         <!-- Halaman Utama -->
-        <div id="main-view" class="flex flex-col flex-grow overflow-hidden">
-            <header class="p-4 pt-6 flex-shrink-0">
+        <div id="main-view" class="flex flex-col flex-grow overflow-y-auto no-scrollbar">
+            <header class="sticky-header p-4 pt-6 flex-shrink-0">
                 <div class="flex items-center gap-2">
                      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
                     <h1 class="text-3xl font-bold tracking-tight">FWorkout+</h1>
                 </div>
-                <!-- Navigasi Tab Geser dengan tambahan "Summary" -->
                 <div id="tab-navigation" class="tab-container">
                     <div class="tab" data-target="summary-content">Summary</div>
                     <div class="tab" data-target="music-content">Music</div>
@@ -97,10 +128,9 @@
                 </div>
             </header>
 
-            <!-- Wrapper konten utama yang bisa di-scroll -->
-            <div class="flex-grow overflow-y-auto no-scrollbar main-content-padding">
+            <div id="main-content-scroller" class="main-content-padding">
                 <div id="tab-content-wrapper" class="p-4">
-                    <!-- Konten Summary dipindahkan ke sini -->
+                    <!-- Konten Summary -->
                     <div id="summary-content" class="hidden">
                          <h2 class="text-2xl font-bold mb-4">Weekly Summary</h2>
                          <div class="bg-[#1c1c1e] p-4 rounded-2xl">
@@ -109,7 +139,7 @@
                          <div id="summary-stats" class="text-left mt-4 space-y-2 text-base p-2"></div>
                     </div>
 
-                    <!-- Konten Music Fungsional -->
+                    <!-- Konten Music -->
                     <div id="music-content" class="hidden">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-2xl font-bold">Music</h2>
@@ -122,7 +152,7 @@
                         <div id="song-list" class="space-y-3"></div>
                     </div>
 
-                    <!-- Konten FWorkout+ (Halaman Utama) -->
+                    <!-- Konten FWorkout+ -->
                     <div id="fworkout-plus-content">
                         <div id="week-navigation" class="flex items-center justify-between mb-4">
                             <button id="prev-week-btn" class="p-2 rounded-full hover:bg-gray-800 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
@@ -142,7 +172,7 @@
                         </div>
                     </div>
 
-                    <!-- Konten Library Fungsional -->
+                    <!-- Konten Library -->
                     <div id="library-content" class="hidden">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-2xl font-bold">Library</h2>
@@ -158,8 +188,7 @@
             </div>
         </div>
 
-        <!-- Halaman Detail Latihan -->
-        <div id="workout-detail-view" class="hidden flex flex-col flex-grow min-h-0"></div>
+        <div id="workout-detail-view" class="hidden flex flex-col flex-grow overflow-y-auto no-scrollbar"></div>
     </div>
 
     <!-- Modal -->
@@ -223,9 +252,8 @@
     </div>
 
     <div id="offscreen-elements" class="fixed -left-[9999px] top-0">
-        <!-- REVISI: Desain Snapshot Progress Diperbarui -->
         <div id="snapshot-wrapper" class="p-8 bg-black">
-            <div id="snapshot-content" class="snapshot-container text-white p-6 flex flex-col rounded-3xl shadow-2xl">
+            <div id="snapshot-content" class="snapshot-container text-white p-6 flex flex-col justify-between rounded-3xl shadow-2xl">
                 <header class="flex items-start justify-between mb-4">
                     <div>
                         <h2 id="snapshot-title" class="text-3xl font-bold"></h2>
@@ -235,7 +263,7 @@
                         <!-- Ikon akan dimasukkan oleh JS -->
                     </div>
                 </header>
-                <main id="snapshot-list" class="flex-grow space-y-2 overflow-y-auto no-scrollbar"></main>
+                <main id="snapshot-list" class="flex-grow space-y-2 my-6 overflow-y-auto no-scrollbar"></main>
                 <footer class="text-center mt-6 pt-4 border-t border-white/20">
                     <p class="font-bold text-xl text-white/90">FWorkout+</p>
                 </footer>
@@ -280,6 +308,15 @@
              6: { name: "Mobility & Light Core", exercises: [ { name: "Shoulder Mobility", sets: "5 min" }, { name: "Hip Opener", sets: "5 min" }, { name: "Bird Dog", sets: "3x15/side" }, { name: "Leg Raises", sets: "3x15" }, { name: "Crunches", sets: "3x20" } ] },
              0: { name: "Rest Day & Progress Photo", exercises: [ { name: "Rest, hydrate, and fuel your body for the week ahead.", sets: "✅" } ] }
         };
+        this.muscleProgramSchedule = {
+            1: { name: "Push Day", exercises: [ { name: "Dumbbell Chest Press", sets: "4x10-12" }, { name: "Incline Push-Up", sets: "3x12-15" }, { name: "Dumbbell Overhead Shoulder Press", sets: "4x10" }, { name: "Dumbbell Front Raise", sets: "3x12" }, { name: "Dumbbell Triceps Kickback", sets: "3x15" }, { name: "Triceps Dips", sets: "3x15" } ] },
+            2: { name: "Pull Day", exercises: [ { name: "Wide Grip Pull-Up", sets: "4xMax" }, { name: "Dumbbell Row", sets: "4x10" }, { name: "Dumbbell Bicep Curl", sets: "4x12" }, { name: "Hammer Curl", sets: "3x12" }, { name: "Barbell Shrug", sets: "3x15" }, { name: "Reverse Fly Dumbbell", sets: "3x12" } ] },
+            3: { name: "Legs + Core", exercises: [ { name: "Goblet Squat", sets: "4x15" }, { name: "Lunges", sets: "3x12/sisi" }, { name: "Dumbbell Deadlift", sets: "4x10" }, { name: "Russian Twist", sets: "3x20" }, { name: "Leg Raise", sets: "3x15" }, { name: "Plank Hold", sets: "3x30-60s" } ] },
+            4: { name: "Pull-Up + Sayap Isolasi", exercises: [ { name: "Pull-Up", sets: "3xMax" }, { name: "Negative Pull-Up", sets: "3x5" }, { name: "One Arm Dumbbell Row", sets: "3x12/sisi" }, { name: "Barbell Row", sets: "4x8" }, { name: "Dumbbell Rear Delt Fly", sets: "3x15" }, { name: "Hanging Leg Raise", sets: "3x15" } ] },
+            5: { name: "Push Isolasi + Volume", exercises: [ { name: "Dumbbell Arnold Press", sets: "4x12" }, { name: "Dumbbell Chest Fly", sets: "4x12" }, { name: "Overhead Triceps Dumbbell", sets: "3x12" }, { name: "Dumbbell Lateral Raise", sets: "3x15" }, { name: "Close Grip Push-Up", sets: "3xMax" }, { name: "Skullcrusher", sets: "3x10" } ] },
+            6: { name: "Full Body Kombo", exercises: [ { name: "Dumbbell Clean & Press", sets: "3x10" }, { name: "Pull-Up (mix grip)", sets: "3xMax" }, { name: "Push-Up", sets: "3x20" }, { name: "Dumbbell Curl + Press Combo", sets: "3x12" }, { name: "Superman", sets: "3x20" }, { name: "Leg Raises", sets: "3x15" } ] },
+            0: { name: "REST DAY", exercises: [ { name: "Full istirahat, fokus tidur & konsumsi protein.", sets: "✅" } ] }
+        };
         this.motivationalQuotes = [ "Progress, not perfection 💪", "Consistency beats motivation 🚀", "One set today is better than zero sets yesterday.", "Today's sweat = tomorrow's strength 🔥", "You’re stronger than you think.", "Don't stop when you're tired. Stop when you're done.", "The only bad workout is the one that didn't happen." ];
         this.dayStyles = {
             "Push": { color: "from-red-500 to-orange-500", icon: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 8.5L12 12l6.5-3.5L12 5l-6.5 3.5z"/><path d="M12 12v6.5"/><path d="M18.5 8.5v6.5L12 18.5l-6.5-3.5V8.5"/><path d="M5.5 15L12 18.5l6.5-3.5"/><path d="M12 5V2"/></svg>` },
@@ -318,9 +355,11 @@
             'burpees': { calories: 15, duration: 1, muscles: ['Full Body', 'Cardio'] },
             'cardio': { calories: 12, duration: 1, muscles: ['Cardio'] },
             'mobility': { calories: 3, duration: 2, muscles: ['Flexibility'] },
+            'fly': { calories: 8, duration: 1.5, muscles: ['Chest', 'Shoulders'] },
+            'skullcrusher': { calories: 8, duration: 1.5, muscles: ['Triceps'] },
             'default': { calories: 8, duration: 1.5, muscles: ['General'] } // Fallback
         };
-        this.tingSound = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC-');
+        this.tingSound = new Audio('data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg-');
 
         // --- STATE APLIKASI ---
         this.appData = { weeks: [], templates: [], settings: {} };
@@ -373,6 +412,7 @@
             addSongModal: document.getElementById('add-song-modal'),
             songTitleInput: document.getElementById('song-title-input'),
             songArtistInput: document.getElementById('song-artist-input'),
+            header: document.querySelector('#main-view > header'),
         };
 
         // --- INIT & EVENT LISTENERS ---
@@ -388,9 +428,9 @@
         };
         
         this.addEventListeners = () => {
-            const mainScroller = this.dom.mainView.querySelector('.overflow-y-auto');
+            const mainScroller = document.getElementById('main-view'); 
             if (mainScroller) {
-                mainScroller.addEventListener('scroll', this.handleScroll);
+                mainScroller.addEventListener('scroll', (e) => this.handleScroll(e, this.dom.header));
             }
             
             this.dom.tabs.forEach(tab => {
@@ -403,7 +443,15 @@
             this.dom.addWeekBtn.addEventListener('click', this.addNewWeek);
         };
         
-        this.handleScroll = () => {};
+        this.handleScroll = (e, headerElement) => {
+            if (!headerElement) return;
+
+            if (e.currentTarget.scrollTop > 10) {
+                headerElement.classList.add('scrolled');
+            } else {
+                headerElement.classList.remove('scrolled');
+            }
+        };
 
         this.handleTabClick = (clickedTab) => {
             this.dom.tabs.forEach(t => {
@@ -485,6 +533,13 @@
                 const totalSets = dayData.exercises.reduce((acc, ex) => acc + this.parseSets(ex.sets), 0);
                 const completedSets = dayData.exercises.reduce((acc, ex) => acc + (ex.completed ? ex.completed.filter(Boolean).length : 0), 0);
                 const isCompleted = totalSets > 0 && completedSets === totalSets;
+                
+                const checkIcon = `
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center ${isCompleted ? 'bg-green-400/30' : 'bg-white/20'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${isCompleted ? '#4ADE80' : 'rgba(255,255,255,0.5)'}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                `;
+
                 return `
                     <div class="activity-card relative rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-300" 
                          data-day-name="${dayName}" 
@@ -497,7 +552,7 @@
                                 <p class="text-sm opacity-80">${dayData.name.split('—')[0]}</p>
                             </div>
                             <div class="self-end">
-                                ${isCompleted ? `<div class="w-8 h-8 rounded-full bg-black/30 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>` : style.icon}
+                                ${checkIcon}
                             </div>
                         </div>
                     </div>
@@ -509,14 +564,15 @@
             const weekData = this.appData.weeks[this.currentWeekIndex];
             const dayData = weekData.schedule[dayIndex];
             const isRestDay = parseInt(dayIndex) === 0;
-            let contentHTML = `
-                <header class="p-4 flex items-center flex-shrink-0">
+            let headerHTML = `
+                <header class="sticky-header p-4 pt-6 flex-shrink-0 sticky top-0 z-10 flex items-center">
                     <button onclick="app.switchView('main-view')" class="p-2 -ml-2 mr-2 rounded-full hover:bg-gray-800"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
                     <h2 class="text-2xl font-bold">${this.dayNames[dayIndex]}</h2>
                     <button onclick="app.generateStoryImage(${dayIndex})" title="Share Progress" class="p-2 ml-auto rounded-full hover:bg-gray-800"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
                 </header>
-                <main id="workout-list" class="flex-grow p-4 space-y-3 overflow-y-auto no-scrollbar main-content-padding">
             `;
+            let mainContentHTML = `<main id="workout-list" class="flex-grow p-4 space-y-3 main-content-padding">`;
+            
             if (isRestDay) {
                 const selfieHTML = `
                     <div class="mt-4">
@@ -526,27 +582,24 @@
                         </label>
                         <input type="file" id="selfie-upload-${this.currentWeekIndex}" class="hidden" accept="image/*" onchange="app.handlePhotoUpload(event, true)">
                     </div>`;
-                contentHTML += `<div class="bg-[#1c1c1e] rounded-2xl p-6 text-center shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400 mb-4 mx-auto"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg><h2 class="text-xl font-bold">${dayData.name}</h2><p class="text-gray-400">${dayData.exercises[0].name}</p>${selfieHTML}</div>`;
+                mainContentHTML += `<div class="bg-[#1c1c1e] rounded-2xl p-6 text-center shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400 mb-4 mx-auto"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg><h2 class="text-xl font-bold">${dayData.name}</h2><p class="text-gray-400">${dayData.exercises[0].name}</p>${selfieHTML}</div>`;
             } else {
-                 contentHTML += dayData.exercises.map((ex, exIdx) => {
+                 mainContentHTML += dayData.exercises.map((ex, exIdx) => {
                     const totalSets = this.parseSets(ex.sets);
                     return `<div class="bg-[#1c1c1e] rounded-2xl p-4 shadow-lg"><div class="flex justify-between items-start"><h3 class="font-bold text-lg text-white">${ex.name}</h3><p class="text-sm font-medium text-purple-400 bg-gray-700 px-2 py-1 rounded-md">${ex.sets}</p></div><div class="space-y-2 mt-3">${Array.from({ length: totalSets }).map((_, setIdx) => `<div class="flex items-center justify-between bg-gray-800 rounded-lg p-2"><div class="flex items-center"><input type="checkbox" id="check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="hidden" onchange="app.toggleSet(${dayIndex}, ${exIdx}, ${setIdx})" ${ex.completed[setIdx] ? 'checked' : ''}><label for="check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}" class="flex items-center cursor-pointer"><span class="w-6 h-6 rounded-md border-2 ${ex.completed[setIdx] ? 'bg-purple-500 border-purple-500' : 'border-gray-500'} flex items-center justify-center mr-3 transition-all duration-200">${ex.completed[setIdx] ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}</span><span class="font-medium text-gray-200">Set ${setIdx + 1}</span></label></div><button onclick="app.openTimerModal(${dayIndex}, ${exIdx}, ${setIdx})" class="flex items-center gap-1 bg-gray-600 hover:bg-purple-600 text-white font-semibold px-3 py-1 rounded-md text-sm transition-colors duration-200" ${ex.completed[setIdx] ? 'disabled' : ''}><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Timer</button></div>`).join('')}</div></div>`
                 }).join('');
-                contentHTML += `<div id="daily-summary-container" class="mt-4"></div>`;
+                mainContentHTML += `<div id="daily-summary-container" class="mt-4"></div>`;
             }
-            contentHTML += `</main>`;
-            this.dom.workoutDetailView.innerHTML = contentHTML;
-            this.dom.workoutDetailView.querySelector('main').addEventListener('scroll', this.handleScroll);
+            mainContentHTML += `</main>`;
+            this.dom.workoutDetailView.innerHTML = headerHTML + mainContentHTML;
+            this.dom.workoutDetailView.addEventListener('scroll', (e) => this.handleScroll(e, this.dom.workoutDetailView.querySelector('.sticky-header')));
             
             if (!isRestDay) {
                 this.renderDailySummary(dayIndex);
             }
             
             if (scrollPosition !== null) {
-                const newScroller = this.dom.workoutDetailView.querySelector('#workout-list');
-                if (newScroller) {
-                    newScroller.scrollTop = scrollPosition;
-                }
+                this.dom.workoutDetailView.scrollTop = scrollPosition;
             }
         };
 
@@ -557,7 +610,7 @@
         };
 
         this.toggleSet = (dayIndex, exIdx, setIdx) => { 
-            const mainScroller = this.dom.workoutDetailView.querySelector('#workout-list');
+            const mainScroller = this.dom.workoutDetailView;
             const scrollPos = mainScroller ? mainScroller.scrollTop : 0;
             
             const isChecked = document.getElementById(`check-${this.currentWeekIndex}-${dayIndex}-${exIdx}-${setIdx}`).checked; 
@@ -580,8 +633,9 @@
         };
         this.commitNewWeek = (template) => {
             const newWeekNumber = this.appData.weeks.length + 1;
-            const newWeekName = template ? `${template.name} - Week ${newWeekNumber}` : `Week ${newWeekNumber}`;
             const schedule = template ? template.schedule : this.initialWeekSchedule;
+            const newWeekName = template ? template.name : `Week ${newWeekNumber}`;
+            
             const newWeek = this.createWeekData(newWeekName, schedule);
             this.appData.weeks.push(newWeek);
             this.currentWeekIndex = this.appData.weeks.length - 1;
@@ -937,10 +991,31 @@
         this.generateStoryImage = (dayIndex) => {
             const weekData = this.appData.weeks[this.currentWeekIndex];
             const dayData = weekData.schedule[dayIndex];
-            this.dom.snapshot.title.textContent = `Progress ${this.dayNames[dayIndex]} ✅`;
+            const styleKey = Object.keys(this.dayStyles).find(k => dayData.name.toLowerCase().includes(k.toLowerCase())) || "Rest";
+            const style = this.dayStyles[styleKey];
+
+            this.dom.snapshot.content.className = `snapshot-container text-white p-6 flex flex-col justify-between rounded-3xl shadow-2xl bg-gradient-to-br ${style.color}`;
+            this.dom.snapshot.icon.innerHTML = style.icon;
+            
+            this.dom.snapshot.title.textContent = `Progress: ${this.dayNames[dayIndex]}`;
             this.dom.snapshot.date.textContent = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-            this.dom.snapshot.list.innerHTML = dayData.exercises.map(ex => { const totalSets = this.parseSets(ex.sets); const completedCount = ex.completed.filter(Boolean).length; return `<div class="bg-gray-700 p-3 rounded-lg flex justify-between items-center"><span class="font-medium">${ex.name}</span><span class="font-bold text-purple-400">${completedCount}/${totalSets}</span></div>` }).join('');
-            html2canvas(this.dom.snapshot.content, { useCORS: true, scale: 2, backgroundColor: null }).then(canvas => { const link = document.createElement('a'); link.download = `FWorkout_Progress_${this.dayNames[dayIndex]}_${weekData.name.replace(/\s/g, '')}.png`; link.href = canvas.toDataURL('image/png'); link.click(); }).catch(err => { console.error("Oops, something went wrong!", err); this.showToast("Failed to create image."); });
+            
+            this.dom.snapshot.list.innerHTML = dayData.exercises
+                .map(ex => { 
+                    const totalSets = this.parseSets(ex.sets); 
+                    const completedCount = ex.completed.filter(Boolean).length; 
+                    return `<div class="bg-black/20 p-3 rounded-lg flex justify-between items-center text-sm"><span class="font-medium">${ex.name}</span><span class="font-bold text-white/80">${completedCount}/${totalSets}</span></div>` 
+                }).join('');
+
+            html2canvas(this.dom.snapshot.content, { useCORS: true, scale: 2, backgroundColor: null }).then(canvas => { 
+                const link = document.createElement('a'); 
+                link.download = `FWorkout_Progress_${this.dayNames[dayIndex]}_${weekData.name.replace(/\s/g, '')}.png`; 
+                link.href = canvas.toDataURL('image/png'); 
+                link.click(); 
+            }).catch(err => { 
+                console.error("Oops, something went wrong!", err); 
+                this.showToast("Failed to create image."); 
+            });
         };
         
         this.createWeekData = (name, schedule) => {
@@ -960,11 +1035,17 @@
                 }
             }
             if (this.appData.weeks.length === 0) {
-                this.appData.weeks.push(this.createWeekData("Week 1", this.initialWeekSchedule));
+                this.appData.weeks.push(this.createWeekData("Default Program", this.initialWeekSchedule));
                 this.currentWeekIndex = 0;
             }
             if (!this.appData.templates) {
                 this.appData.templates = [];
+            }
+            if (!this.appData.templates.some(t => t.name === "Muscle Program – Fokus Bulking")) {
+                this.appData.templates.push({
+                    name: "Muscle Program – Fokus Bulking",
+                    schedule: this.muscleProgramSchedule
+                });
             }
             this.saveData();
         };
